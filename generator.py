@@ -54,10 +54,10 @@ class AugmentedImageSequence(Sequence):
 
     def load_image(self, image_file):
         image_path = os.path.join(self.source_image_dir, image_file)
-        image_array = np.random.randint(low=0,high=255,size=(self.target_size[0],self.target_size[1],3))
+        # image_array = np.random.randint(low=0,high=255,size=(self.target_size[0],self.target_size[1],3))
 
-        # image = Image.open(image_path)
-        # image_array = np.asarray(image.convert("RGB"))
+        image = Image.open(image_path)
+        image_array = np.asarray(image.convert("RGB"))
         image_array = image_array / 255.
         image_array = resize(image_array, self.target_size)
         return image_array
