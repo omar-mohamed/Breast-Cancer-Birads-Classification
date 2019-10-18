@@ -1,131 +1,87 @@
-import tensorflow as tf
-from models.CNN_encoder import CNN_Encoder
-from chexnet_wrapper import ChexnetWrapper
-import os
-from configparser import ConfigParser
+from __future__ import absolute_import, division
+
+from visual_model_selector import ModelFactory
 from generator import AugmentedImageSequence
-from utility import get_sample_counts
-import time
-from tensorflow.python.eager.context import eager_mode, graph_mode
+from configs import argHandler  # Import the default arguments
+from model_utils import save_model, load_model, get_accuracy, get_accuracy_from_generator, set_gpu_usage
+import numpy as np
+from tensorflow.keras.optimizers import Adam
 from augmenter import augmenter
-import matplotlib.pyplot as plt
 
-config_file = "./config.ini"
-cp = ConfigParser()
-cp.read(config_file)
-class_names = cp["Classification_Model"].get("class_names").split(",")
-num_classes = cp["Classification_Model"].getint("num_classes")
+FLAGS = argHandler()
+FLAGS.setDefaults()
 
-image_source_dir = cp["Data"].get("image_source_dir")
-data_dir = cp["Data"].get("data_dir")
-training_csv=cp['Data'].get('training_set_csv')
+set_gpu_usage(FLAGS.gpu_percentage)
 
-image_dimension = cp["Chexnet_Default"].getint("image_dimension")
-
-batch_size = cp["Classification_Model_Train"].getint("batch_size")
-training_counts = get_sample_counts(data_dir, training_csv)
-EPOCHS = cp["Classification_Model_Train"].getint("epochs")
-
-units = cp["Classification_Model"].getint("units")
-
-checkpoint_path = cp["Classification_Model_Train"].get("ckpt_path")
-continue_from_last_ckpt=cp["Classification_Model_Train"].getboolean("continue_from_last_ckpt")
-# compute steps
-steps = int(training_counts / batch_size)
-print(f"** train_steps: {steps} **")
-
-print("** load training generator **")
+model_factory = ModelFactory()
 
 
-data_generator = AugmentedImageSequence(
-    dataset_csv_file=os.path.join(data_dir, training_csv),
-    class_names=class_names,
-    source_image_dir=image_source_dir,
-    batch_size=batch_size,
-    target_size=(image_dimension, image_dimension),
-    augmenter=augmenter,
-    steps=steps,
-    shuffle_on_epoch_end=True,
-)
+# load training and test set file names
+
+def get_generator(csv_path, data_augmenter=None):
+    return AugmentedImageSequence(
+        dataset_csv_file=csv_path,
+        label_columns=FLAGS.csv_label_columns,
+        class_names=FLAGS.classes,
+        multi_label_classification=FLAGS.multi_label_classification,
+        source_image_dir=FLAGS.image_directory,
+        batch_size=FLAGS.batch_size,
+        target_size=FLAGS.image_target_size,
+        augmenter=data_augmenter,
+        shuffle_on_epoch_end=True,
+    )
 
 
-encoder = CNN_Encoder(units,num_classes)
+train_generator = get_generator(FLAGS.train_csv, augmenter)
 
-optimizer = tf.keras.optimizers.Adam()
-loss_object = tf.keras.losses.SparseCategoricalCrossentropy(
-    from_logits=True, reduction='none')
+test_generator = get_generator(FLAGS.test_csv)
 
+# load classifier from saved weights or get a new one
+if FLAGS.load_model_path != '' and FLAGS.load_model_path is not None:
+    visual_model = load_model(FLAGS.load_model_path, FLAGS.load_model_name)
+    epoch_number = int(FLAGS.load_model_name.split('_')[-1])
+else:
+    visual_model = model_factory.get_model(FLAGS)
+    epoch_number = 0
 
-def loss_function(real, pred):
-    loss_ = loss_object(real, pred)
+opt = Adam(lr=FLAGS.learning_rate, decay=FLAGS.learning_rate_decay)
+if FLAGS.multi_label_classification:
+    visual_model.compile(loss='binary_crossentropy', optimizer=opt, metrics=['accuracy'])
+else:
+    visual_model.compile(loss='sparse_categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-    return tf.reduce_mean(loss_)
+accuracies = []
+steps = 0
+best_test_accuracy = 0
+best_test_accuracy_epoch = 0
 
+accuracies = []
+epoch_number = 0
+# run training
+while True:
 
-loss_plot = []
+    (batch_x, batch_y, _) = next(train_generator)
+    visual_model.train_on_batch(batch_x, batch_y)
+    batch_predictions = visual_model.predict(batch_x)
+    accuracy = get_accuracy(batch_predictions, batch_y, FLAGS.multi_label_classification)
+    accuracies.append(accuracy)
+    if steps % 5 == 0:
+        print('Step: %d' % steps)
+        print('Batch Accuracy: %.2f' % (accuracy * 100))
 
+    steps += 1
+    if (steps % train_generator.steps == 0):
+        epoch_number += 1
+        test_accuracy = get_accuracy_from_generator(visual_model, test_generator, FLAGS.multi_label_classification)
+        print('Epoch: %d' % epoch_number)
+        print('Training Accuracy: %.2f' % (np.mean(np.array(accuracies))))
+        print('Test Accuracy: %.2f' % test_accuracy)
 
-@tf.function
-def train_step(img_tensor, labels):
-    loss = 0
-    img_tensor=tf.reshape(img_tensor,[img_tensor.shape[0],-1])
-    with tf.GradientTape() as tape:
-        logits = encoder(img_tensor)
-        predictions= tf.nn.softmax(logits)
-        loss += loss_function(labels, predictions)
-
-    trainable_variables = encoder.trainable_variables
-    gradients = tape.gradient(loss, trainable_variables)
-    optimizer.apply_gradients(zip(gradients, trainable_variables))
-    return loss
-
-
-with graph_mode():
-    chexnet = ChexnetWrapper()
-
-
-ckpt = tf.train.Checkpoint(encoder=encoder,
-                           optimizer=optimizer)
-
-ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_path, max_to_keep=5)
-
-start_epoch = 0
-if ckpt_manager.latest_checkpoint and continue_from_last_ckpt:
-    start_epoch = int(ckpt_manager.latest_checkpoint.split('-')[-1])
-    ckpt.restore(ckpt_manager.latest_checkpoint)
-    print("Restored from checkpoint: {}".format(ckpt_manager.latest_checkpoint))
-
-for epoch in range(start_epoch, EPOCHS):
-    start = time.time()
-    total_loss = 0
-
-    for batch in range(data_generator.steps):
-        img, target, paths = data_generator.__getitem__(batch)
-        with graph_mode():
-            img_tensor = chexnet.get_visual_features(img)
-
-        print("batch: {}".format(batch))
-
-        batch_loss = train_step(img_tensor, target)
-        total_loss += batch_loss
-
-        if batch % 5 == 0:
-            print('Epoch {} Batch {} Loss {:.4f}'.format(
-                epoch + 1, batch, batch_loss.numpy()))
-    # storing the epoch end loss value to plot later
-    loss_plot.append(total_loss / data_generator.steps)
-
-    if epoch % 1 == 0:
-        ckpt_manager.save()
-
-    print('Epoch {} Loss {:.6f}'.format(epoch + 1,
-                                        total_loss / data_generator.steps))
-    print('Time taken for 1 epoch {} sec\n'.format(time.time() - start))
-
-    plt.plot(loss_plot)
-    plt.xlabel('Epochs')
-    plt.ylabel('Loss')
-    plt.title('Loss Plot')
-    plt.savefig("loss.png")
-
-# plt.show()
+        if test_accuracy > best_test_accuracy:
+            best_test_accuracy = test_accuracy
+            best_test_accuracy_epoch = epoch_number
+        accuracies = []
+        save_model(visual_model, FLAGS.save_model_path, "model_epoch_{}".format(str(epoch_number)))
+        print('Best Test Accuracy: %.2f in epoch: %d' % (best_test_accuracy, best_test_accuracy_epoch))
+        if epoch_number == FLAGS.num_epochs:
+            break

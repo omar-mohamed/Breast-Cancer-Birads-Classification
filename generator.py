@@ -5,6 +5,7 @@ from tensorflow.python.keras.utils import Sequence
 from PIL import Image
 from skimage.transform import resize
 
+
 class AugmentedImageSequence(Sequence):
     """
     Thread-safe image generator with imgaug support
@@ -12,7 +13,8 @@ class AugmentedImageSequence(Sequence):
     For more information of imgaug see: https://github.com/aleju/imgaug
     """
 
-    def __init__(self, dataset_csv_file, class_names, source_image_dir, batch_size=16,
+    def __init__(self, dataset_csv_file, label_columns, multi_label_classification, class_names, source_image_dir,
+                 batch_size=16,
                  target_size=(224, 224), augmenter=None, verbose=0, steps=None,
                  shuffle_on_epoch_end=True, random_state=1):
         """
@@ -33,6 +35,9 @@ class AugmentedImageSequence(Sequence):
         self.shuffle = shuffle_on_epoch_end
         self.random_state = random_state
         self.class_names = class_names
+        self.label_columns = label_columns
+        self.multi_label_classification = multi_label_classification
+        self.current_step = -1
         self.prepare_dataset()
         if steps is None:
             self.steps = int(np.ceil(len(self.x_path) / float(self.batch_size)))
@@ -52,9 +57,21 @@ class AugmentedImageSequence(Sequence):
         batch_y = self.y[idx * self.batch_size:(idx + 1) * self.batch_size]
         return batch_x, batch_y, batch_x_path
 
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        while (True):
+            self.current_step += 1
+
+            if self.current_step >= self.steps:
+                self.current_step = 0
+                self.on_epoch_end()
+            return self.__getitem__(self.current_step)
+
     def load_image(self, image_file):
         image_path = os.path.join(self.source_image_dir, image_file)
-        # image_array = np.random.randint(low=0,high=255,size=(self.target_size[0],self.target_size[1],3))
+        # image_array = np.random.randint(low=0, high=255, size=(self.target_size[0], self.target_size[1], 3))
 
         image = Image.open(image_path)
         image_array = np.asarray(image.convert("RGB"))
@@ -82,21 +99,36 @@ class AugmentedImageSequence(Sequence):
             """)
         return self.y[:self.steps * self.batch_size, :]
 
-    def convert_labels_to_numbers(self,y):
-        return np.array([int(elem[0]) for elem in y[:,0]])-1
+    def get_sparse_labels(self, y):
+        return np.array([int(elem[0]) for elem in y[:, 0]]) - 1
 
-    def get_images_path(self,image_names,patient_ids):
+    def get_onehot_labels(self, y):
+        onehot = np.zeros((y.shape[0], len(self.class_names)))
+        index = 0
+        for label in y:
+            labels = np.array(str(label[0]).split("$"), dtype=np.int) - 1
+            onehot[index][labels] = 1
+            index += 1
+        return onehot
+
+    def convert_labels_to_numbers(self, y):
+        if self.multi_label_classification:
+            return self.get_onehot_labels(y)
+        else:
+            return self.get_sparse_labels(y)
+
+    def get_images_path(self, image_names, patient_ids):
         for i in range(image_names.shape[0]):
-            image_names[i]=os.path.join(str(patient_ids[i]),image_names[i]+'.jpg')
+            image_names[i] = os.path.join(str(patient_ids[i]), image_names[i] + '.jpg')
         return image_names
-
 
     def prepare_dataset(self):
         df = self.dataset_df.sample(frac=1., random_state=self.random_state)
-        self.x_path, self.y = self.get_images_path(df["Image_name"].as_matrix(),df["Patient_ID"].as_matrix()), self.convert_labels_to_numbers(df[self.class_names].as_matrix())
+        self.x_path, self.y = self.get_images_path(df["Image_name"].as_matrix(),
+                                                   df["Patient_ID"].as_matrix()), self.convert_labels_to_numbers(
+            df[self.label_columns].as_matrix())
 
     def on_epoch_end(self):
         if self.shuffle:
             self.random_state += 1
             self.prepare_dataset()
-
