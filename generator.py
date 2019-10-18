@@ -119,7 +119,7 @@ class AugmentedImageSequence(Sequence):
 
     def get_images_path(self, image_names, patient_ids):
         for i in range(image_names.shape[0]):
-            image_names[i] = os.path.join(str(patient_ids[i]), image_names[i] + '.jpg')
+            image_names[i] =  image_names[i] + '.jpg'
         return image_names
 
     def prepare_dataset(self):
