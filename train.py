@@ -67,7 +67,7 @@ while True:
     accuracies.append(accuracy)
     if steps % 5 == 0:
         print('Step: %d' % steps)
-        print('Batch Accuracy: %.2f' % (accuracy * 100))
+        print('Batch Accuracy: %.2f' % accuracy )
 
     steps += 1
     if (steps % train_generator.steps == 0):
