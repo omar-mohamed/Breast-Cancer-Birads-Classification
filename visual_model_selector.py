@@ -6,6 +6,7 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Model
 from dense_classifier import get_classifier
 
+
 class ModelFactory:
     """
     Model facotry for Keras default models
@@ -37,7 +38,7 @@ class ModelFactory:
                 input_shape=(224, 224, 3),
                 module_name="densenet",
                 last_conv_layer="bn",
-            ),            
+            ),
             Xception=dict(
                 input_shape=(299, 299, 3),
                 module_name="xception",
@@ -77,14 +78,39 @@ class ModelFactory:
                 input_shape=(224, 224, 3),
                 module_name="mobilenet_v2",
                 last_conv_layer="Conv_1_bn",
-            ),            
+            ),
         )
 
     def get_last_conv_layer(self, model_name):
         return self.models_[model_name]["last_conv_layer"]
-    
+
     def get_input_size(self, model_name):
         return self.models_[model_name]["input_shape"][:2]
+
+    def load_chexnet_weights(self, base_model, img_input, weights_path):
+        predictions = Dense(14, activation="sigmoid", name="predictions")(base_model.output)
+        base_model = Model(inputs=img_input, outputs=predictions)
+        base_model.load_weights(weights_path)
+        print(f"loaded chexnet weights: {weights_path}")
+        return base_model
+
+    def pop_conv_layers(self, base_model, layers_to_pop):
+        for i in range(layers_to_pop):
+            base_model._layers.pop()
+
+        base_model.outputs = [base_model.layers[-1].output]
+        return base_model
+
+    def set_trainable_layers(self, base_model, layers_to_train):
+        for i in range(len(base_model.layers) - layers_to_train):
+            base_model.layers[i].trainable = False
+        return base_model
+
+    def get_output_unrolled_size(self, output_layer_shape):
+        output_unrolled_length = 1
+        for dimension in output_layer_shape[1:]:
+            output_unrolled_length *= int(dimension)
+        return output_unrolled_length
 
     def get_model(self, FLAGS):
 
@@ -98,11 +124,11 @@ class ModelFactory:
                 "tensorflow.keras.applications.{}".format(self.models_[FLAGS.visual_model_name]['module_name'])
             ),
             FLAGS.visual_model_name)
-        
+
         input_shape = FLAGS.image_target_size
         if input_shape is None:
             input_shape = self.models_[FLAGS.visual_model_name]["input_shape"]
-        
+
         img_input = Input(shape=input_shape)
 
         base_model = base_model_class(
@@ -112,36 +138,30 @@ class ModelFactory:
             weights=base_weights,
             pooling=FLAGS.final_layer_pooling)
 
+        chexnet_classifier_exists = False
         if FLAGS.use_chexnet_weights and FLAGS.visual_model_name == 'DenseNet121':
-            predictions = Dense(14, activation="sigmoid", name="predictions")(base_model.output)
-            base_model = Model(inputs=img_input, outputs=predictions)
-            base_model.load_weights(FLAGS.chexnet_weights_path)
-            print(f"loaded chexnet weights: {FLAGS.chexnet_weights_path}")
+            base_model = self.load_chexnet_weights(base_model, img_input, FLAGS.chexnet_weights_path)
+            chexnet_classifier_exists = True
 
-
-        for i in range(FLAGS.pop_conv_layers):
-             base_model._layers.pop()
+        if FLAGS.pop_conv_layers > 0:
+            base_model = self.pop_conv_layers(base_model, FLAGS.pop_conv_layers)
+            chexnet_classifier_exists = False
 
         if FLAGS.conv_layers_to_train != -1:
-            for i in range(len(base_model.layers)-FLAGS.conv_layers_to_train):
-                base_model.layers[i].trainable = False  
-                
-        base_model.outputs=base_model.layers[-1].output
-        base_model_output =  base_model.outputs
-        
+            base_model = self.set_trainable_layers(base_model, FLAGS.conv_layers_to_train)
+
         loaded_model = base_model
         classifier = None
-        if FLAGS.classes is not None and (not FLAGS.use_chexnet_weights or FLAGS.visual_model_name != 'DenseNet121' or FLAGS.pop_conv_layers>0):
-            output_unrolled_length = 1
-            for dimension in base_model_output.shape[1:]:
-                output_unrolled_length *= int(dimension)            
-                
-            classifier = get_classifier(output_unrolled_length,FLAGS.multi_label_classification, FLAGS.classifier_layer_sizes,len(FLAGS.classes))
+        if FLAGS.classes is not None and FLAGS.classes != [] and not chexnet_classifier_exists:
+            base_model_output = loaded_model.layers[-1].output
+            output_unrolled_length = self.get_output_unrolled_size(base_model_output.shape)
+            classifier = get_classifier(output_unrolled_length, FLAGS.multi_label_classification,
+                                        FLAGS.classifier_layer_sizes, len(FLAGS.classes))
             predictions = classifier(base_model_output)
             loaded_model = Model(inputs=img_input, outputs=predictions)
-        
+
         loaded_model.summary()
         if classifier is not None:
             classifier.summary()
-        
+
         return loaded_model
