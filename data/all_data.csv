@@ -1,79 +1,119 @@
-Image_name,Patient_ID,Side,Type,BIRADS,Finding,View,,Comment 
-P1_L_DM_MLO,1,L,DM,4,Architectural distortion ,MLO,,
-P1_L_CM_MLO,1,L,CESM,4,Heterogenously enhancing mass ,MLO,,
-P2_R_DM_CC,2,R,DM,3$2,Multiple medium density  masses$Benign macrocalcifications ,CC,,
-P2_R_DM_MLO,2,R,DM,3$2,Multiple medium density masses$Benign macrocalcifications ,MLO,,
-P2_R_CM_CC,2,R,CESM,3,Multiple homogenously enhancing  masses ,CC,,
-P2_R_CM_MLO,2,R,CESM,3,Multiple homogenously enhancing  masses ,MLO,,
-P2_L_DM_CC,2,L,DM,2,Flap,CC,,Remove?
-P2_L_DM_MLO,2,L,DM,2,Flap,MLO,,Remove?
-P2_L_CM_CC,2,L,CESM,2,Flap with no enhancement,CC,,Remove?
-P2_L_CM_MLO,2,L,CESM,2,Flap with no enhancement,MLO,,Remove?
-P3_L_DM_CC,3,L,DM,5,High density mass with speculated margin ,CC,,
-P3_L_DM_MLO,3,L,DM,5,High density mass with speculated margin ,MLO,,
-P3_L_CM_CC ,3,L,CESM,5,Heterogenously enhancing mass with speculated margin ,CC,,
-P3_L_CM_MLO,3,L,CESM,5,Heterogenously enhancing mass with speculated margin ,MLO,,
-P3_R_DM_CC,3,R,DM,2$2,Dilated retroareolar duct$IMLN,CC,,
-P3_R_DM_MLO,3,R,DM,2$2,Dilated retroareolar duct$IMLN,MLO,,
-P3_R_CM_CC,3,R,CESM,2$2,Dilated retroareolar duct$IMLN,CC,,
-P3_R_CM_MLO,3,R,CESM,2$2,Dilated retroareolar duct$IMLN,MLO,,
-P4_L_DM_MLO ,4,L,DM,1,Normal,MLO,,Artifact
-P4_L_CM_MLO ,4,L,CESM,1,No mass or non mass enhancement,MLO,,Artifact
-P4_R_DM_CC,4,R,DM,1,Normal,CC,,
-P4_R_CM_CC,4,R,CESM,1,No mass or non mass enhancement,CC,,
-P5_R_DM_CC,5,R,DM,1,Normal,CC,,
-P5_R_DM_MLO,5,R,DM,1,Normal,MLO,,
-P5_R_CM_CC,5,R,CESM,1,No mass or non mass enhancement,CC,,
-P5_R_CM_MLO,5,R,CESM,1,No mass or non mass enhancement,MLO,,
-P5_L_DM_CC,5,L,DM,1,Normal,CC,,
-P5_L_DM_MLO,5,L,DM,1,Normal,MLO,,
-P5_L_CM_CC,5,L,CESM,1,No mass or non mass enhancement,CC,,
-P5_L_CM_MLO,5,L,CESM,1,No mass or non mass enhancement,MLO,,
-P6_R_DM_CC,6,R,DM,2,Benign macrocalcification,CC,,
-P6_R_CM_CC,6,R,CESM,1,Normal,CC,,
-P6_L_DM_MLO,6,L,DM,4,Mass with obscured margin,MLO,,
-P6_L_CM_MLO,6,L,CESM,3,Enhancing mass with dark internal septations,MLO,,
-P7_R_DM_CC,7,R,DM,1,Normal,CC,,
-P7_R_DM_MLO,7,R,DM,1,Normal,MLO,,
-P7_R_CM_CC,7,R,CESM,1,No mass or non mass enhancement,CC,,
-P7_R_CM_MLO,7,R,CESM,1,No mass or non mass enhancement,MLO,,
-P7_L_DM_MLO,7,L,DM,5,High density mass with speculated margin ,MLO,,
-P7_L_CM_MLO,7,L,CESM,5,Heterogenously enhancing mass with speculated margin ,MLO,,
-P8_L_DM_MLO,8,L,DM,2,Benign macrocalcification,MLO,,
-P8_L_CM_MLO,8,L,CESM,1,No mass or non mass enhancement,MLO,,
-P9_L_DM_MLO,9,L,DM,2,Benign macrocalcification,MLO,,
-P9_L_CM_MLO,9,L,CESM,1,No mass or non mass enhancement,MLO,,
-P10_R_DM_CC ,10,R,DM,2,Edema and postoperative scar ,CC,,
-P10_R_DM_MLO ,10,R,DM,2,Edema and postoperative scar ,MLO,,
-P10_R_CM_CC,10,R,CESM,2,Foci of enhancement ,CC,,
-P10_R_CM_MLO,10,R,CESM,2,Foci of enhancement ,MLO,,
-P10_L_DM_CC,10,L,DM,2,Normal,CC,,
-P10_L_DM_MLO,10,L,DM,2,Normal,MLO,,
-P10_L_CM_CC,10,L,CESM,2,No mass or non mass enhancement,CC,,
-P10_L_CM_MLO,10,L,CESM,2,No mass or non mass enhancement,MLO,,
-P11_R_DM_CC,11,R,DM,3,Medium density mass with obscured margin,CC,,
-P11_R_DM_MLO,11,R,DM,3,Medium density mass with obscured margin,MLO,,
-P11_R_CM_CC,11,R,CESM,3,Enhancing mass with dark internal septations,CC,,
-P11_R_CM_MLO,11,R,CESM,3,Enhancing mass with dark internal septations,MLO,,
-P12_R_DM_CC,12,R,DM,1,Normal,CC,,
-P12_R_DM_MLO,12,R,DM,1,Normal,MLO,,
-P12_R_CM_CC,12,R,CESM,1,No mass or non mass enhancement,CC,,
-P12_R_CM_MLO,12,R,CESM,1,No mass or non mass enhancement,MLO,,
-P12_L_DM_CC,12,L,DM,3,Focal asymmetry$IMLN,CC,,
-P12_L_DM_MLO,12,L,DM,3,Focal asymmetry$IMLN,MLO,,
-P12_L_CM_CC,12,L,CESM,4,Ductal enhancement$IMLN,CC,,
-P12_R_CM_MLO,12,L,CESM,4,Ductal enhancement$IMLN,MLO,,
-P13_R_DM_CC,13,R,DM,3,Medium density mass ,CC,,
-P13_R_CM_CC,13,R,CESM,2,Non enhancement,CC,,
-P14_L_DM_CC,14,L,DM,1,Normal,CC,,
-P14_L_DM_MLO,14,L,DM,1,Normal,MLO,,
-P14_L_CM_CC,14,L,CESM,1,No mass or non mass enhancement,CC,,
-P14_L_CM_MLO,14,L,CESM,1,No mass or non mass enhancement,MLO,,
-P14_R_DM_CC,14,R,DM,4,Diffuse edematous changes ,CC,,
-P14_R_DM_MLO,14,R,DM,4,Diffuse edematous changes ,MLO,,
-P14_R_CM_CC,14,R,CESM,4,Cobblestone enhancement,CC,,
-P14_R_CM_MLO,14,R,CESM,4,Cobblestone enhancement,MLO,,
-P15_L_DM_MLO,15,L,DM,3,Medium density mass with circumscribed margin,MLO,,
-P15_L_CM_MLO,15,L,CESM,2,Non enhancement ,MLO,,
-P15_R_DM_MLO,15,R,DM,1,Normal,MLO,,
-P15_R_CM_MLO,15,R,CESM,1,No mass or non mass enhancement,MLO,,
+Image_name,Patient_ID,Side,Type,BIRADS,Finding,View
+P1_L_DM_MLO,1,L,DM,4,Architectural distortion,MLO
+P1_L_CM_MLO,1,L,CESM,4,Heterogenously enhancing mass,MLO
+P2_R_DM_CC,2,R,DM,3$2,Multiple medium densitymasses$Benign macrocalcifications,CC
+P2_R_DM_MLO,2,R,DM,3$2,Multiple medium density masses$Benign macrocalcifications,MLO
+P2_R_CM_CC,2,R,CESM,3,Multiple homogenously enhancingmasses,CC
+P2_R_CM_MLO,2,R,CESM,3,Multiple homogenously enhancingmasses,MLO
+P2_L_DM_CC,2,L,DM,2,Flap,CC
+P2_L_DM_MLO,2,L,DM,2,Flap,MLO
+P2_L_CM_CC,2,L,CESM,2,Flap with no enhancement,CC
+P2_L_CM_MLO,2,L,CESM,2,Flap with no enhancement,MLO
+P3_L_DM_CC,3,L,DM,5,High density mass with speculated margin,CC
+P3_L_DM_MLO,3,L,DM,5,High density mass with speculated margin,MLO
+P3_L_CM_CC,3,L,CESM,5,Heterogenously enhancing mass with speculated margin,CC
+P3_L_CM_MLO,3,L,CESM,5,Heterogenously enhancing mass with speculated margin,MLO
+P3_R_DM_CC,3,R,DM,2$2,Dilated retroareolar duct$IMLN,CC
+P3_R_DM_MLO,3,R,DM,2$2,Dilated retroareolar duct$IMLN,MLO
+P3_R_CM_CC,3,R,CESM,2$2,Dilated retroareolar duct$IMLN,CC
+P3_R_CM_MLO,3,R,CESM,2$2,Dilated retroareolar duct$IMLN,MLO
+P4_L_DM_MLO,4,L,DM,1,Normal,MLO
+P4_L_CM_MLO,4,L,CESM,1,No mass or non mass enhancement,MLO
+P4_R_DM_CC,4,R,DM,1,Normal,CC
+P4_R_CM_CC,4,R,CESM,1,No mass or non mass enhancement,CC
+P5_R_DM_CC,5,R,DM,1,Normal,CC
+P5_R_DM_MLO,5,R,DM,1,Normal,MLO
+P5_R_CM_CC,5,R,CESM,1,No mass or non mass enhancement,CC
+P5_R_CM_MLO,5,R,CESM,1,No mass or non mass enhancement,MLO
+P5_L_DM_CC,5,L,DM,1,Normal,CC
+P5_L_DM_MLO,5,L,DM,1,Normal,MLO
+P5_L_CM_CC,5,L,CESM,1,No mass or non mass enhancement,CC
+P5_L_CM_MLO,5,L,CESM,1,No mass or non mass enhancement,MLO
+P6_R_DM_CC,6,R,DM,2,Benign macrocalcification,CC
+P6_R_CM_CC,6,R,CESM,1,No mass or non mass enhancement,CC
+P6_L_DM_MLO,6,L,DM,4,High density mass with obscured margin,MLO
+P6_L_CM_MLO,6,L,CESM,3,Enhancing mass with dark internal septations,MLO
+P7_R_DM_CC,7,R,DM,1,Normal,CC
+P7_R_DM_MLO,7,R,DM,1,Normal,MLO
+P7_R_CM_CC,7,R,CESM,1,No mass or non mass enhancement,CC
+P7_R_CM_MLO,7,R,CESM,1,No mass or non mass enhancement,MLO
+P7_L_DM_MLO,7,L,DM,5,High density mass with speculated margin,MLO
+P7_L_CM_MLO,7,L,CESM,5,Heterogenously enhancing mass with speculated margin,MLO
+P8_L_DM_MLO,8,L,DM,2,Benign macrocalcification,MLO
+P8_L_CM_MLO,8,L,CESM,1,No mass or non mass enhancement,MLO
+P9_L_DM_MLO,9,L,DM,2,Benign macrocalcification,MLO
+P9_L_CM_MLO,9,L,CESM,1,No mass or non mass enhancement,MLO
+P10_R_DM_CC,10,R,DM,2,Edema and postoperative scar,CC
+P10_R_DM_MLO,10,R,DM,2,Edema and postoperative scar,MLO
+P10_R_CM_CC,10,R,CESM,2,Foci of enhancement,CC
+P10_R_CM_MLO,10,R,CESM,2,Foci of enhancement,MLO
+P10_L_DM_CC,10,L,DM,1,Normal,CC
+P10_L_DM_MLO,10,L,DM,1,Normal,MLO
+P10_L_CM_CC,10,L,CESM,2,Foci of enhancement,CC
+P10_L_CM_MLO,10,L,CESM,2,Foci of enhancement,MLO
+P11_R_DM_CC,11,R,DM,3,Medium density mass with partially obscured margin,CC
+P11_R_DM_MLO,11,R,DM,3,Medium density mass with partially obscured margin,MLO
+P11_R_CM_CC,11,R,CESM,3,Enhancing mass with dark internal septations,CC
+P11_R_CM_MLO,11,R,CESM,3,Enhancing mass with dark internal septations,MLO
+P12_R_DM_CC,12,R,DM,1,Normal,CC
+P12_R_DM_MLO,12,R,DM,1,Normal,MLO
+P12_R_CM_CC,12,R,CESM,1,No mass or non mass enhancement,CC
+P12_R_CM_MLO,12,R,CESM,1,No mass or non mass enhancement,MLO
+P12_L_DM_CC,12,L,DM,3,Focal asymmetrical inreased density$IMLN,CC
+P12_L_DM_MLO,12,L,DM,3,Focal asymmetrical increased density$IMLN,MLO
+P12_L_CM_CC,12,L,CESM,4,Ductal non mass enhancement$IMLN,CC
+P12_L_CM_MLO,12,L,CESM,4,Ductal non mass enhancement$IMLN,MLO
+P13_R_DM_CC,13,R,DM,3,Medium density mass with circumscribed margin,CC
+P13_R_CM_CC,13,R,CESM,2,Non enhancement,CC
+P14_L_DM_CC,14,L,DM,1,Normal,CC
+P14_L_DM_MLO,14,L,DM,1,Normal,MLO
+P14_L_CM_CC,14,L,CESM,1,No mass or non mass enhancement,CC
+P14_L_CM_MLO,14,L,CESM,1,No mass or non mass enhancement,MLO
+P14_R_DM_CC,14,R,DM,4,Diffuse edematous changes,CC
+P14_R_DM_MLO,14,R,DM,4,Diffuse edematous changes,MLO
+P14_R_CM_CC,14,R,CESM,4,Cobblestone enhancement,CC
+P14_R_CM_MLO,14,R,CESM,4,Cobblestone enhancement,MLO
+P15_L_DM_MLO,15,L,DM,3,Medium density mass with circumscribed margin,MLO
+P15_L_CM_MLO,15,L,CESM,2,Non enhancement,MLO
+P15_R_DM_MLO,15,R,DM,1,Normal,MLO
+P15_R_CM_MLO,15,R,CESM,1,No mass or non mass enhancement,MLO
+P16_R_DM_CC,16,R,DM,1,Normal,CC
+P16_R_DM_MLO,16,R,DM,4,High density axillary mass,MLO
+P16_R_CM_CC,16,R,CESM,1,No mass or non mass enhancement,CC
+P16_R_CM_MLO,16,R,CESM,4,Axillary heterogenously enhancing mass,MLO
+P16_L_DM_CC,16,L,DM,1,Normal,CC
+P16_L_DM_MLO,16,L,DM,1,Normal,MLO
+P16_L_CM_CC,16,L,CESM,1,No mass or non mass enhancement,CC
+P16_L_CM_MLO,16,L,CESM,1,No mass or non mass enhancement,MLO
+P17_R_DM_MLO,17,R,DM,4,Architectural distortion,MLO
+P17_R_CM_MLO,17,R,CESM,4,Heterogenous enhacement,MLO
+P18_R_DM_CC,18,R,DM,4,Multiple medium density masses,CC
+P18_R_DM_MLO,18,R,DM,4,Multiple medium density masses,MLO
+P18_R_CM_CC,18,R,CESM,2,Focus enhancement,CC
+P18_R_CM_MLO,18,R,CESM,2,Focus enhancement,MLO
+P18_L_DM_CC,18,L,DM,4,Architectural distortion and asymmetrical increased density,CC
+P18_L_DM_MLO,18,L,DM,4,Architectural distortion and asymmetrical increased density,MLO
+P18_L_CM_CC,18,L,CESM,4,Ductal non mass enhancement,CC
+P18_L_CM_MLO,18,L,CESM,4,Ductal non mass enhancement,MLO
+P19_R_DM_MLO,19,R,DM,1,Normal,MLO
+P19_R_CM_MLO,19,R,CESM,1,No mass or non mass enhancement,MLO
+P19_L_DM_CC,19,L,DM,4,High density mass with obscured margin,CC
+P19_L_DM_MLO,19,L,DM,4,High density mass with obscured margin,MLO
+P19_L_CM_CC,19,L,CESM,2,Non enhancement,CC
+P19_L_CM_MLO,19,L,CESM,2,Non enhancement,MLO
+P20_R_DM_CC,20,R,DM,1,Normal,CC
+P20_R_DM_MLO,20,R,DM,2,IMLN,MLO
+P20_R_CM_CC,20,R,CESM,1,No mass or non mass enhancement,CC
+P20_R_CM_MLO,20,R,CESM,2,IMLN,MLO
+P21_R_DM_CC,21,R,DM,3,Asymmetrial increased density,CC
+P21_R_DM_MLO,21,R,DM,3,Asymmetrial increased density,MLO
+P21_R_CM_CC,21,R,CESM,4,Segmental non mass enhancement,CC
+P21_R_CM_MLO,21,R,CESM,4,Segmental non mass enhancement,MLO
+P21_L_DM_CC,21,L,DM,1,Normal,CC
+P21_L_DM_MLO,21,L,DM,1,Normal,MLO
+P21_L_CM_CC,21,L,CESM,1,No mass or non mass enhancement,CC
+P21_L_CM_MLO,21,L,CESM,1,No mass or non mass enhancement,MLO
+P22_L_DM_CC,22,L,DM,3,Asymmetrial increased density,CC
+P22_L_CM_CC,22,L,CESM,5,Regional non mass enhancement,CC
+P23_R_DM_CC,23,R,DM,2,Edema and postoperative scar,CC
+P23_R_CM_CC,23,R,CESM,2,Non enhancement,CC
