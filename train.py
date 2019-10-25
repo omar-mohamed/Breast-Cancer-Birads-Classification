@@ -3,15 +3,12 @@ from __future__ import absolute_import, division
 from visual_model_selector import ModelFactory
 from generator import AugmentedImageSequence
 from configs import argHandler  # Import the default arguments
-from model_utils import save_model, load_model, get_accuracy, get_accuracy_from_generator, set_gpu_usage
+from model_utils import save_model, load_model, get_accuracy, get_accuracy_from_generator, get_optimizer
 import numpy as np
-from tensorflow.keras.optimizers import Adam
 from augmenter import augmenter
 
 FLAGS = argHandler()
 FLAGS.setDefaults()
-
-set_gpu_usage(FLAGS.gpu_percentage)
 
 model_factory = ModelFactory()
 
@@ -32,7 +29,7 @@ def get_generator(csv_path, data_augmenter=None):
     )
 
 
-train_generator = get_generator(FLAGS.train_csv,augmenter)
+train_generator = get_generator(FLAGS.train_csv, augmenter)
 
 test_generator = get_generator(FLAGS.test_csv)
 
@@ -44,7 +41,8 @@ else:
     visual_model = model_factory.get_model(FLAGS)
     epoch_number = 0
 
-opt = Adam(lr=FLAGS.learning_rate, decay=FLAGS.learning_rate_decay)
+opt = get_optimizer(FLAGS.optimizer_type, FLAGS.learning_rate, FLAGS.learning_rate_decay)
+
 if FLAGS.multi_label_classification:
     visual_model.compile(loss='binary_crossentropy', optimizer=opt, metrics=['accuracy'])
 else:
@@ -56,18 +54,20 @@ best_test_accuracy = 0
 best_test_accuracy_epoch = 0
 
 accuracies = []
+losses = []
 # run training
-
 while True:
 
     (batch_x, batch_y, _) = next(train_generator)
-    visual_model.train_on_batch(batch_x, batch_y)
+    batch_loss = visual_model.train_on_batch(batch_x, batch_y)
     batch_predictions = visual_model.predict(batch_x)
     accuracy = get_accuracy(batch_predictions, batch_y, FLAGS.multi_label_classification)
     accuracies.append(accuracy)
+    losses.append(np.mean(batch_loss))
     if steps % 5 == 0:
         print('Step: %d' % steps)
-        print('Batch Accuracy: %.2f' % accuracy )
+        print('Batch Accuracy: %.2f' % accuracy)
+        print('Batch Loss: %.2f' % np.mean(batch_loss))
 
     steps += 1
     if (steps % train_generator.steps == 0):
@@ -75,12 +75,14 @@ while True:
         test_accuracy = get_accuracy_from_generator(visual_model, test_generator, FLAGS.multi_label_classification)
         print('Epoch: %d' % epoch_number)
         print('Training Accuracy: %.2f' % (np.mean(np.array(accuracies))))
+        print('Training Loss: %.2f' % (np.mean(np.array(losses))))
         print('Test Accuracy: %.2f' % test_accuracy)
 
         if test_accuracy > best_test_accuracy:
             best_test_accuracy = test_accuracy
             best_test_accuracy_epoch = epoch_number
         accuracies = []
+        losses = []
         save_model(visual_model, FLAGS.save_model_path, "model_epoch_{}".format(str(epoch_number)))
         print('Best Test Accuracy: %.2f in epoch: %d' % (best_test_accuracy, best_test_accuracy_epoch))
         if epoch_number == FLAGS.num_epochs:

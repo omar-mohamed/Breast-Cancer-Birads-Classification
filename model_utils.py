@@ -1,12 +1,11 @@
 from __future__ import absolute_import, division
 
-from tensorflow import keras
 from skimage.transform import resize
 from tensorflow.keras.models import model_from_json
 import os
 import numpy as np
+import importlib
 from tensorflow.keras import backend as K
-import tensorflow as tf
 from sklearn.metrics import confusion_matrix
 
 
@@ -19,6 +18,12 @@ def set_gpu_usage(gpu_memory_fraction):
     # elif gpu_memory_fraction == 0:
     #     sess = tf.Session(config=tf.ConfigProto(device_count={'GPU': 0}))
     # K.set_session(sess)
+
+
+def get_optimizer(optimizer_type, learning_rate, lr_decay):
+    optimizer_class = getattr(importlib.import_module("tensorflow.keras.optimizers"), optimizer_type)
+    optimizer = optimizer_class(lr=learning_rate, decay=lr_decay)
+    return optimizer
 
 
 def save_model(model, save_path, model_name):

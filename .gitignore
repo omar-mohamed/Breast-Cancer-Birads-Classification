@@ -2,3 +2,4 @@
 __pycache__/
 checkpoints/train/checkpoint
 checkpoints/
+data/images/
