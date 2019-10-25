@@ -32,7 +32,7 @@ def get_generator(csv_path, data_augmenter=None):
     )
 
 
-train_generator = get_generator(FLAGS.train_csv, augmenter)
+train_generator = get_generator(FLAGS.train_csv,augmenter)
 
 test_generator = get_generator(FLAGS.test_csv)
 
@@ -56,8 +56,8 @@ best_test_accuracy = 0
 best_test_accuracy_epoch = 0
 
 accuracies = []
-epoch_number = 0
 # run training
+
 while True:
 
     (batch_x, batch_y, _) = next(train_generator)
