@@ -59,15 +59,15 @@ losses = []
 while True:
 
     (batch_x, batch_y, _) = next(train_generator)
-    batch_loss = visual_model.train_on_batch(batch_x, batch_y)
+    batch_loss,_ = visual_model.train_on_batch(batch_x, batch_y)
     batch_predictions = visual_model.predict(batch_x)
     accuracy = get_accuracy(batch_predictions, batch_y, FLAGS.multi_label_classification)
     accuracies.append(accuracy)
-    losses.append(np.mean(batch_loss))
+    losses.append(batch_loss)
     if steps % 5 == 0:
         print('Step: %d' % steps)
         print('Batch Accuracy: %.2f' % accuracy)
-        print('Batch Loss: %.2f' % np.mean(batch_loss))
+        print('Batch Loss: %.2f' % batch_loss)
 
     steps += 1
     if (steps % train_generator.steps == 0):
