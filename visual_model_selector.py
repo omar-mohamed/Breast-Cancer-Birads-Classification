@@ -46,7 +46,37 @@ class ModelFactory:
             ),
             ResNet50=dict(
                 input_shape=(224, 224, 3),
-                module_name="resnet50",
+                module_name="resnet",
+                last_conv_layer="activation_49",
+            ),
+            ResNet50V2=dict(
+                input_shape=(224, 224, 3),
+                module_name="resnet_v2",
+                last_conv_layer="activation_49",
+            ),
+            ResNet101=dict(
+                input_shape=(224, 224, 3),
+                module_name="resnet",
+                last_conv_layer="activation_49",
+            ),
+            ResNet101V2=dict(
+                input_shape=(224, 224, 3),
+                module_name="resnet_v2",
+                last_conv_layer="activation_49",
+            ),
+            ResNet152=dict(
+                input_shape=(224, 224, 3),
+                module_name="resnet",
+                last_conv_layer="activation_49",
+            ),
+            ResNet152V2=dict(
+                input_shape=(224, 224, 3),
+                module_name="resnet_v2",
+                last_conv_layer="activation_49",
+            ),
+            ResNeXt50=dict(
+                input_shape=(224, 224, 3),
+                module_name="resnext",
                 last_conv_layer="activation_49",
             ),
             InceptionV3=dict(
@@ -138,21 +168,19 @@ class ModelFactory:
             weights=base_weights,
             pooling=FLAGS.final_layer_pooling)
 
-        chexnet_classifier_exists = False
         if FLAGS.use_chexnet_weights and FLAGS.visual_model_name == 'DenseNet121':
             base_model = self.load_chexnet_weights(base_model, img_input, FLAGS.chexnet_weights_path)
-            chexnet_classifier_exists = True
+            FLAGS.pop_conv_layers += 1
 
         if FLAGS.pop_conv_layers > 0:
             base_model = self.pop_conv_layers(base_model, FLAGS.pop_conv_layers)
-            chexnet_classifier_exists = False
 
         if FLAGS.conv_layers_to_train != -1:
             base_model = self.set_trainable_layers(base_model, FLAGS.conv_layers_to_train)
 
         loaded_model = base_model
         classifier = None
-        if FLAGS.classes is not None and FLAGS.classes != [] and not chexnet_classifier_exists:
+        if FLAGS.classes is not None and FLAGS.classes != []:
             base_model_output = loaded_model.layers[-1].output
             output_unrolled_length = self.get_output_unrolled_size(base_model_output.shape)
             classifier = get_classifier(output_unrolled_length, FLAGS.multi_label_classification,
@@ -160,8 +188,9 @@ class ModelFactory:
             predictions = classifier(base_model_output)
             loaded_model = Model(inputs=img_input, outputs=predictions)
 
-        loaded_model.summary()
-        if classifier is not None:
-            classifier.summary()
+        if FLAGS.show_model_summary:
+            loaded_model.summary()
+            if classifier is not None:
+                classifier.summary()
 
         return loaded_model
