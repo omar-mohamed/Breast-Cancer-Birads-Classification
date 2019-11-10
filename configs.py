@@ -12,7 +12,7 @@ class argHandler(dict):
         self.define('image_directory', './data/images',
                     'path to folder containing the patient folders which containg the images')
         self.define('visual_model_name', 'DenseNet121',
-                    'select from (VGG16, VGG19, DenseNet121, DenseNet169, DenseNet201, Xception, ResNet50, InceptionV3, InceptionResNetV2, NASNetMobile, NASNetLarge, MobileNet, MobileNetV2). Note that the classifier layer is removed by default.')
+                    'select from (VGG16, VGG19, DenseNet121, DenseNet169, DenseNet201, Xception, ResNet50, ResNet101, ResNet152, ResNet50V2, ResNet101V2, ResNet152V2, InceptionV3, InceptionResNetV2, NASNetMobile, NASNetLarge, MobileNet, MobileNetV2, EfficientNetB0 to EfficientNetB7). Note that the classifier layer is removed by default.')
         self.define('use_chexnet_weights', True,
                     'use pre-trained chexnet weights. Note only works with DenseNet121. The classifier layer is removed by default as with other models')
         self.define('chexnet_weights_path', 'pretrained_models/chexnet_densenet121_weights.h5', 'chexnet weights path')

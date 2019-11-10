@@ -16,97 +16,132 @@ class ModelFactory:
         self.models_ = dict(
             VGG16=dict(
                 input_shape=(224, 224, 3),
-                module_name="vgg16",
+                module_name="tensorflow.keras.applications.vgg16",
                 last_conv_layer="block5_conv3",
             ),
             VGG19=dict(
                 input_shape=(224, 224, 3),
-                module_name="vgg19",
+                module_name="tensorflow.keras.applications.vgg19",
                 last_conv_layer="block5_conv4",
             ),
             DenseNet121=dict(
                 input_shape=(224, 224, 3),
-                module_name="densenet",
+                module_name="tensorflow.keras.applications.densenet",
                 last_conv_layer="bn",
             ),
             DenseNet169=dict(
                 input_shape=(224, 224, 3),
-                module_name="densenet",
+                module_name="tensorflow.keras.applications.densenet",
                 last_conv_layer="bn",
             ),
             DenseNet201=dict(
                 input_shape=(224, 224, 3),
-                module_name="densenet",
+                module_name="tensorflow.keras.applications.densenet",
                 last_conv_layer="bn",
             ),
             Xception=dict(
                 input_shape=(299, 299, 3),
-                module_name="xception",
+                module_name="tensorflow.keras.applications.xception",
                 last_conv_layer="block14_sepconv2_bn",
             ),
             ResNet50=dict(
                 input_shape=(224, 224, 3),
-                module_name="resnet",
+                module_name="tensorflow.keras.applications.resnet",
                 last_conv_layer="activation_49",
             ),
             ResNet50V2=dict(
                 input_shape=(224, 224, 3),
-                module_name="resnet_v2",
+                module_name="tensorflow.keras.applications.resnet_v2",
                 last_conv_layer="activation_49",
             ),
             ResNet101=dict(
                 input_shape=(224, 224, 3),
-                module_name="resnet",
+                module_name="tensorflow.keras.applications.resnet",
                 last_conv_layer="activation_49",
             ),
             ResNet101V2=dict(
                 input_shape=(224, 224, 3),
-                module_name="resnet_v2",
+                module_name="tensorflow.keras.applications.resnet_v2",
                 last_conv_layer="activation_49",
             ),
             ResNet152=dict(
                 input_shape=(224, 224, 3),
-                module_name="resnet",
+                module_name="tensorflow.keras.applications.resnet",
                 last_conv_layer="activation_49",
             ),
             ResNet152V2=dict(
                 input_shape=(224, 224, 3),
-                module_name="resnet_v2",
-                last_conv_layer="activation_49",
-            ),
-            ResNeXt50=dict(
-                input_shape=(224, 224, 3),
-                module_name="resnext",
+                module_name="tensorflow.keras.applications.resnet_v2",
                 last_conv_layer="activation_49",
             ),
             InceptionV3=dict(
                 input_shape=(299, 299, 3),
-                module_name="inception_v3",
+                module_name="tensorflow.keras.applications.inception_v3",
                 last_conv_layer="mixed10",
             ),
             InceptionResNetV2=dict(
                 input_shape=(299, 299, 3),
-                module_name="inception_resnet_v2",
+                module_name="tensorflow.keras.applications.inception_resnet_v2",
                 last_conv_layer="conv_7b_ac",
             ),
             NASNetMobile=dict(
                 input_shape=(224, 224, 3),
-                module_name="nasnet",
+                module_name="tensorflow.keras.applications.nasnet",
                 last_conv_layer="activation_188",
             ),
             NASNetLarge=dict(
                 input_shape=(331, 331, 3),
-                module_name="nasnet",
+                module_name="tensorflow.keras.applications.nasnet",
                 last_conv_layer="activation_260",
             ),
             MobileNet=dict(
                 input_shape=(224, 224, 3),
-                module_name="mobilenet",
+                module_name="tensorflow.keras.applications.mobilenet",
                 last_conv_layer="conv_pw_13_bn",
             ),
             MobileNetV2=dict(
                 input_shape=(224, 224, 3),
-                module_name="mobilenet_v2",
+                module_name="tensorflow.keras.applications.mobilenet_v2",
+                last_conv_layer="Conv_1_bn",
+            ),
+            EfficientNetB0=dict(
+                input_shape=(224, 224, 3),
+                module_name="efficientnet.tfkeras",
+                last_conv_layer="Conv_1_bn",
+            ),
+            EfficientNetB1=dict(
+                input_shape=(224, 224, 3),
+                module_name="efficientnet.tfkeras",
+                last_conv_layer="Conv_1_bn",
+            ),
+            EfficientNetB2=dict(
+                input_shape=(224, 224, 3),
+                module_name="efficientnet.tfkeras",
+                last_conv_layer="Conv_1_bn",
+            ),
+            EfficientNetB3=dict(
+                input_shape=(224, 224, 3),
+                module_name="efficientnet.tfkeras",
+                last_conv_layer="Conv_1_bn",
+            ),
+            EfficientNetB4=dict(
+                input_shape=(224, 224, 3),
+                module_name="efficientnet.tfkeras",
+                last_conv_layer="Conv_1_bn",
+            ),
+            EfficientNetB5=dict(
+                input_shape=(224, 224, 3),
+                module_name="efficientnet.tfkeras",
+                last_conv_layer="Conv_1_bn",
+            ),
+            EfficientNetB6=dict(
+                input_shape=(224, 224, 3),
+                module_name="efficientnet.tfkeras",
+                last_conv_layer="Conv_1_bn",
+            ),
+            EfficientNetB7=dict(
+                input_shape=(224, 224, 3),
+                module_name="efficientnet.tfkeras",
                 last_conv_layer="Conv_1_bn",
             ),
         )
@@ -151,7 +186,7 @@ class ModelFactory:
 
         base_model_class = getattr(
             importlib.import_module(
-                "tensorflow.keras.applications.{}".format(self.models_[FLAGS.visual_model_name]['module_name'])
+                "{}".format(self.models_[FLAGS.visual_model_name]['module_name'])
             ),
             FLAGS.visual_model_name)
 
