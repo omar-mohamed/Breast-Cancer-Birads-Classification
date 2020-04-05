@@ -1,11 +1,10 @@
 from __future__ import absolute_import, division
 
 from visual_model_selector import ModelFactory
-from generator import AugmentedImageSequence
 from configs import argHandler  # Import the default arguments
-from model_utils import get_optimizer, get_class_weights
+from model_utils import get_optimizer, get_multilabel_class_weights, get_generator, get_class_weights
 from tensorflow.keras import metrics
-from tensorflow.keras.callbacks import ReduceLROnPlateau, ModelCheckpoint, TensorBoard
+from tensorflow.keras.callbacks import ReduceLROnPlateau, ModelCheckpoint, TensorBoard, CSVLogger
 import os
 from tensorflow.keras.models import load_model
 from augmenter import augmenter
@@ -20,26 +19,16 @@ model_factory = ModelFactory()
 
 # load training and test set file names
 
-def get_generator(csv_path, data_augmenter=None):
-    return AugmentedImageSequence(
-        dataset_csv_file=csv_path,
-        label_columns=FLAGS.csv_label_columns,
-        class_names=FLAGS.classes,
-        multi_label_classification=FLAGS.multi_label_classification,
-        source_image_dir=FLAGS.image_directory,
-        batch_size=FLAGS.batch_size,
-        target_size=FLAGS.image_target_size,
-        augmenter=data_augmenter,
-        shuffle_on_epoch_end=False,
-    )
-
-
-train_generator = get_generator(FLAGS.train_csv, augmenter)
-test_generator = get_generator(FLAGS.test_csv)
+train_generator = get_generator(FLAGS.train_csv,FLAGS, augmenter)
+test_generator = get_generator(FLAGS.test_csv, FLAGS)
 
 class_weights = None
-if FLAGS.use_class_balancing and FLAGS.multi_label_classification:
-    class_weights = get_class_weights(train_generator.y, FLAGS.positive_weights_multiply)
+if FLAGS.use_class_balancing:
+    if FLAGS.multi_label_classification:
+        class_weights = get_multilabel_class_weights(train_generator.y, FLAGS.positive_weights_multiply)
+    else:
+        class_weights = get_class_weights(train_generator.get_class_counts(), FLAGS.positive_weights_multiply)
+
 
 # load classifier from saved weights or get a new one
 training_stats = {}
@@ -66,8 +55,6 @@ else:
     visual_model.compile(loss='sparse_categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
     training_stats_file = {}
 
-checkpoint = ModelCheckpoint(os.path.join(FLAGS.save_model_path, 'latest_model.hdf5'),
-                             verbose=1)
 
 try:
     os.makedirs(FLAGS.save_model_path)
@@ -77,23 +64,33 @@ except:
 with open(os.path.join(FLAGS.save_model_path,'configs.json'), 'w') as fp:
     json.dump(FLAGS, fp, indent=4)
 
-auroc = MultipleClassAUROC(
-    sequence=test_generator,
-    class_names=FLAGS.classes,
-    weights_path=os.path.join(FLAGS.save_model_path, 'latest_model.hdf5'),
-    output_weights_path=os.path.join(FLAGS.save_model_path, 'best_model.hdf5'),
-    confidence_thresh=FLAGS.multilabel_threshold,
-    stats=training_stats,
-    workers=FLAGS.generator_workers,
-)
-
 callbacks = [
-    ReduceLROnPlateau(monitor='val_loss', factor=FLAGS.learning_rate_decay_factor, patience=FLAGS.reduce_lr_patience,
+    ReduceLROnPlateau(monitor='val_loss', factor=FLAGS.learning_rate_decay_factor,
+                      patience=FLAGS.reduce_lr_patience,
                       verbose=1, mode="min", min_lr=FLAGS.minimum_learning_rate),
-    checkpoint,
-    auroc,
-    TensorBoard(log_dir=os.path.join(FLAGS.save_model_path, "logs"))
+    TensorBoard(log_dir=os.path.join(FLAGS.save_model_path, "logs"), batch_size=FLAGS.batch_size)
 ]
+
+if FLAGS.multi_label_classification:
+    checkpoint = ModelCheckpoint(os.path.join(FLAGS.save_model_path, 'latest_model.hdf5'),
+                                 verbose=1)
+
+    auroc = MultipleClassAUROC(
+        sequence=test_generator,
+        class_names=FLAGS.classes,
+        weights_path=os.path.join(FLAGS.save_model_path, 'latest_model.hdf5'),
+        output_weights_path=os.path.join(FLAGS.save_model_path, 'best_model.hdf5'),
+        confidence_thresh=FLAGS.multilabel_threshold,
+        stats=training_stats,
+        workers=FLAGS.generator_workers,
+    )
+
+    callbacks.extend([auroc,checkpoint])
+else:
+    checkpoint = ModelCheckpoint(os.path.join(FLAGS.save_model_path, 'best_model.hdf5'), monitor='val_accuracy',
+                                 save_best_only=True, save_weights_only=False, mode='max', verbose=1)
+    callbacks.extend([CSVLogger(os.path.join(FLAGS.save_model_path,'training_log.csv')), checkpoint])
+
 
 visual_model.fit_generator(
     generator=train_generator,

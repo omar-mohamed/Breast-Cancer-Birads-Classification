@@ -1,7 +1,7 @@
 import numpy as np
 import os
 import pandas as pd
-from tensorflow.python.keras.utils import Sequence
+from tensorflow.keras.utils import Sequence
 from PIL import Image
 from skimage.transform import resize
 
@@ -37,6 +37,8 @@ class AugmentedImageSequence(Sequence):
         self.class_names = class_names
         self.label_columns = label_columns
         self.multi_label_classification = multi_label_classification
+        self.class_counts=[0]*len(class_names)
+
         self.current_step = -1
         self.prepare_dataset()
         if steps is None:
@@ -97,10 +99,25 @@ class AugmentedImageSequence(Sequence):
             raise ValueError("""
             You're trying run get_y_true() when generator option 'shuffle_on_epoch_end' is True.
             """)
-        return self.y[:self.steps * self.batch_size, :]
+        if self.multi_label_classification:
+            return self.y[:self.steps * self.batch_size, :]
+        else:
+            return self.y[:self.steps * self.batch_size]
+
+
+    def get_class_counts(self):
+        return self.class_counts
 
     def get_sparse_labels(self, y):
-        return np.array([int(elem[0]) for elem in y[:, 0]]) - 1
+        labels = np.zeros(y.shape[0],dtype=int)
+        index = 0
+        for label in y:
+            label = np.array(str(label[0]).split("$"), dtype=np.int) - 1
+            labels[index] = int(np.max(label))
+            self.class_counts[labels[index]] += 1
+
+            index += 1
+        return labels
 
     def get_onehot_labels(self, y):
         onehot = np.zeros((y.shape[0], len(self.class_names)))
