@@ -6,6 +6,7 @@ import os
 import numpy as np
 from tensorflow.keras import backend as K
 import importlib
+import efficientnet.tfkeras
 from sklearn.metrics import roc_auc_score, precision_recall_fscore_support, average_precision_score, hamming_loss, confusion_matrix, accuracy_score, classification_report
 from generator import AugmentedImageSequence
 import math
