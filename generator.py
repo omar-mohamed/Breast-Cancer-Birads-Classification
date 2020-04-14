@@ -46,9 +46,6 @@ class AugmentedImageSequence(Sequence):
         else:
             self.steps = int(steps)
 
-    def __bool__(self):
-        return True
-
     def __len__(self):
         return self.steps
 
@@ -59,17 +56,6 @@ class AugmentedImageSequence(Sequence):
         batch_y = self.y[idx * self.batch_size:(idx + 1) * self.batch_size]
         return batch_x, batch_y
 
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        while (True):
-            self.current_step += 1
-
-            if self.current_step >= self.steps:
-                self.current_step = 0
-                self.on_epoch_end()
-            return self.__getitem__(self.current_step)
 
     def load_image(self, image_file):
         image_path = os.path.join(self.source_image_dir, image_file)
