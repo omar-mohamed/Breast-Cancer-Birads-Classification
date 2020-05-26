@@ -10,7 +10,7 @@ import efficientnet.tfkeras
 from sklearn.metrics import roc_auc_score, precision_recall_fscore_support, average_precision_score, hamming_loss, confusion_matrix, accuracy_score, classification_report
 from generator import AugmentedImageSequence
 import math
-
+import pandas as pd
 def set_gpu_usage(gpu_memory_fraction):
     pass
     # if gpu_memory_fraction <= 1 and gpu_memory_fraction > 0:
@@ -119,7 +119,7 @@ def get_accuracy(predictions, labels, multi_label_classification):
 
 
 
-def get_multilabel_evaluation_metrics(pred, labels, class_names, threshold=0.5):
+def get_multilabel_evaluation_metrics(pred, labels, class_names, threshold=0.5,image_names=None, save_path = None):
     current_auroc = []
     for i in range(len(class_names)):
         try:
@@ -133,12 +133,47 @@ def get_multilabel_evaluation_metrics(pred, labels, class_names, threshold=0.5):
     mean_auroc = np.mean(current_auroc)
     print(f"mean auroc: {mean_auroc}")
 
-    prec, rec, fscore, support = precision_recall_fscore_support(labels, pred >= threshold, average='macro')
     AP = average_precision_score(labels, pred)
-    exact_accuracy = accuracy_score(labels, pred >= threshold)
-    ham_loss = hamming_loss(labels, pred >= threshold)
+    exact_accuracy,best_exact_thresh = get_best_exact_match(pred,labels,image_names)
+    prec, rec, fscore, support = precision_recall_fscore_support(labels, pred >= best_exact_thresh, average='macro')
+    if save_path is not None and image_names is not None:
+        save_exact_match_results(pred>=best_exact_thresh,labels,image_names,save_path)
+    ham_loss = hamming_loss(labels, pred >= best_exact_thresh)
     print(f"precision:{prec:.2f}, recall: {rec:.2f}, fscore: {fscore:.2f}, AP: {AP:.2f}, exact match accuracy: {exact_accuracy:.2f}, hamming loss: {ham_loss:.2f}")
     return mean_auroc, prec,rec,fscore, AP , exact_accuracy, ham_loss
+
+
+def get_str_label_rep(labels):
+    lst = []
+    for i in range(labels.shape[0]):
+        ones = np.where(labels[i,:] == 1)[0] + 1
+        ones = np.char.mod('%d', ones)
+        lst.append("$".join(ones))
+    return lst
+
+def save_exact_match_results(pred,labels,image_names,path):
+    pred = get_str_label_rep(pred)
+    labels = get_str_label_rep(labels)
+    match = [True if p==l else False for p,l in zip(pred,labels)]
+    csv_dict = {"image_name":image_names,"label":labels,"prediction":pred,"match":match}
+
+    df = pd.DataFrame(csv_dict)
+    df.to_csv(path,index=False)
+
+def get_best_exact_match(pred, labels, thresh_range=[0.01, 0.99], rate=0.01):
+    best_acc = 0
+    best_thresh = thresh_range[0]
+    thresh = thresh_range[0]
+    while(thresh <= thresh_range[1]):
+        exact_accuracy = accuracy_score(labels, pred >= thresh)
+        if exact_accuracy > best_acc:
+            best_acc = exact_accuracy
+            best_thresh = thresh
+        thresh +=rate
+    print(f"best exact match acc found: {best_acc} with thresh {best_thresh}")
+
+    return best_acc, best_thresh
+
 
 def get_sample_counts(labels):
 

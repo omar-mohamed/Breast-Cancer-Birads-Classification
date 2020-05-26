@@ -4,6 +4,7 @@ import pandas as pd
 from tensorflow.keras.utils import Sequence
 from PIL import Image
 from skimage.transform import resize
+import imgaug.augmenters as iaa
 
 
 class AugmentedImageSequence(Sequence):
@@ -51,13 +52,15 @@ class AugmentedImageSequence(Sequence):
 
     def __getitem__(self, idx):
         batch_x_path = self.x_path[idx * self.batch_size:(idx + 1) * self.batch_size]
-        batch_x = np.asarray([self.load_image(x_path) for x_path in batch_x_path])
+        batch_sides = self.side[idx * self.batch_size:(idx + 1) * self.batch_size]
+        batch = zip(batch_x_path,batch_sides)
+        batch_x = np.asarray([self.load_image(x_path,side) for x_path, side in batch])
         batch_x = self.transform_batch_images(batch_x)
         batch_y = self.y[idx * self.batch_size:(idx + 1) * self.batch_size]
         return batch_x, batch_y
 
 
-    def load_image(self, image_file):
+    def load_image(self, image_file, side):
         image_path = os.path.join(self.source_image_dir, image_file)
         # image_array = np.random.randint(low=0, high=255, size=(self.target_size[0], self.target_size[1], 3))
 
@@ -65,6 +68,8 @@ class AugmentedImageSequence(Sequence):
         image_array = np.asarray(image.convert("RGB"))
         image_array = image_array / 255.
         image_array = resize(image_array, self.target_size)
+        # if side == 'L':
+        #     image_array = np.fliplr(image_array)
         return image_array
 
     def transform_batch_images(self, batch_x):
@@ -97,9 +102,12 @@ class AugmentedImageSequence(Sequence):
     def get_sparse_labels(self, y):
         labels = np.zeros(y.shape[0],dtype=int)
         index = 0
+
         for label in y:
             label = np.array(str(label[0]).split("$"), dtype=np.int) - 1
             labels[index] = int(np.max(label))
+            # if labels[index] == 4:
+            #     labels[index] = 3
             self.class_counts[labels[index]] += 1
 
             index += 1
@@ -120,6 +128,9 @@ class AugmentedImageSequence(Sequence):
         else:
             return self.get_sparse_labels(y)
 
+    def get_images_names(self):
+        return self.image_names
+
     def get_images_path(self, image_names, patient_ids):
         for i in range(image_names.shape[0]):
             image_names[i] =  image_names[i].strip() + '.jpg'
@@ -127,9 +138,11 @@ class AugmentedImageSequence(Sequence):
 
     def prepare_dataset(self):
         df = self.dataset_df.sample(frac=1., random_state=self.random_state)
-        self.x_path, self.y = self.get_images_path(df["Image_name"].as_matrix(),
-                                                   df["Patient_ID"].as_matrix()), self.convert_labels_to_numbers(
-            df[self.label_columns].as_matrix())
+        self.x_path, self.y, self.side, self.image_names = self.get_images_path(df["Image_name"].values,
+                                                   df["Patient_ID"].values), self.convert_labels_to_numbers(
+            df[self.label_columns].values), df['Side'].values, df['Image_name'].values
+
+
 
     def on_epoch_end(self):
         if self.shuffle:

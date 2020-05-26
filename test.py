@@ -5,7 +5,7 @@ from configs import argHandler  # Import the default arguments
 from model_utils import set_gpu_usage, get_multilabel_evaluation_metrics, get_generator, get_evaluation_metrics
 from tensorflow.keras.models import load_model
 from tensorflow.keras import metrics
-
+import os
 
 FLAGS = argHandler()
 FLAGS.setDefaults()
@@ -30,7 +30,7 @@ def get_metrics_from_generator(generator,threshold=0.5, verbose=1):
                                            max_queue_size=FLAGS.generator_queue_length, verbose=verbose)
     y = generator.get_y_true()
     if FLAGS.multi_label_classification:
-        get_multilabel_evaluation_metrics(y_hat, y, FLAGS.classes, threshold=threshold)
+        get_multilabel_evaluation_metrics(y_hat, y, FLAGS.classes, threshold=threshold,image_names=generator.get_images_names(),save_path=os.path.join(FLAGS.save_model_path,'exact_match.csv'))
     else:
         y_hat = y_hat.argmax(axis=1)
         get_evaluation_metrics(y_hat, y, FLAGS.classes)
