@@ -85,7 +85,7 @@ if FLAGS.multi_label_classification:
         workers=FLAGS.generator_workers,
     )
 
-    callbacks.extend([auroc,checkpoint])
+    callbacks.extend([checkpoint,auroc])
 else:
     checkpoint = ModelCheckpoint(os.path.join(FLAGS.save_model_path, 'best_model.hdf5'), monitor='val_accuracy',
                                  save_best_only=True, save_weights_only=False, mode='max', verbose=1)
