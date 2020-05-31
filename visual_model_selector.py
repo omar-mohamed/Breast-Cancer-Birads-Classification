@@ -5,6 +5,7 @@ from tensorflow.keras.layers import Input
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Model
 from dense_classifier import get_classifier
+from downscaling_cnn import get_downscaling_model
 
 
 class ModelFactory:
@@ -159,12 +160,14 @@ class ModelFactory:
         print(f"loaded chexnet weights: {weights_path}")
         return base_model
 
-    def pop_conv_layers(self, base_model, layers_to_pop):
+    def pop_conv_layers(self, base_model, img_input, layers_to_pop):
         for i in range(layers_to_pop):
             base_model._layers.pop()
 
         base_model.outputs = [base_model.layers[-1].output]
+        base_model = Model(inputs=img_input, outputs=base_model.outputs, name='Visual_Model')
         return base_model
+
 
     def set_trainable_layers(self, base_model, layers_to_train):
         for i in range(len(base_model.layers) - layers_to_train):
@@ -176,6 +179,24 @@ class ModelFactory:
         for dimension in output_layer_shape[1:]:
             output_unrolled_length *= int(dimension)
         return output_unrolled_length
+
+    def concat_models(self, downscaling_model, visual_model, classifier, img_input, base_model_img_input):
+        base_model_output = visual_model.layers[-1].output
+        if downscaling_model is not None:
+            downscaled_images = downscaling_model(img_input)
+            visual_features = visual_model(downscaled_images)
+            if classifier is not None:
+                predictions = classifier(visual_features)
+                loaded_model = Model(inputs=img_input, outputs=predictions, name='Pipeline')
+            else:
+                loaded_model = Model(inputs=img_input, outputs=visual_features, name='Pipeline')
+        else:
+            if classifier is not None:
+                predictions = classifier(base_model_output)
+                loaded_model = Model(inputs=base_model_img_input, outputs=predictions, name='Pipeline')
+            else:
+                loaded_model = visual_model
+        return loaded_model
 
     def get_model(self, FLAGS):
 
@@ -194,38 +215,53 @@ class ModelFactory:
         if input_shape is None:
             input_shape = self.models_[FLAGS.visual_model_name]["input_shape"]
 
-        img_input = Input(shape=input_shape)
+        img_input = Input(shape=input_shape, name="image_batch")
+        downscaling_model = None
+        if FLAGS.cnn_downscaling_factor > 0:
+            downscaling_model = get_downscaling_model(input_shape, FLAGS.cnn_downscaling_factor,
+                                                      FLAGS.cnn_downscaling_filters)
+            input_shape = (int(input_shape[0] / (FLAGS.cnn_downscaling_factor * 2)),
+                           int(input_shape[1] / (FLAGS.cnn_downscaling_factor * 2)), 3)
+
+        base_model_img_input = Input(shape=input_shape)
 
         base_model = base_model_class(
             include_top=False,
-            input_tensor=img_input,
+            input_tensor=base_model_img_input,
             input_shape=input_shape,
             weights=base_weights,
             pooling=FLAGS.final_layer_pooling)
 
+        chexnet_classifier_exists = False
         if FLAGS.use_chexnet_weights and FLAGS.visual_model_name == 'DenseNet121':
-            base_model = self.load_chexnet_weights(base_model, img_input, FLAGS.chexnet_weights_path)
-            FLAGS.pop_conv_layers += 1
+            base_model = self.load_chexnet_weights(base_model, base_model_img_input, FLAGS.chexnet_weights_path)
+            chexnet_classifier_exists = True
 
         if FLAGS.pop_conv_layers > 0:
-            base_model = self.pop_conv_layers(base_model, FLAGS.pop_conv_layers)
+            base_model = self.pop_conv_layers(base_model, base_model_img_input, FLAGS.pop_conv_layers)
+            chexnet_classifier_exists = False
 
         if FLAGS.conv_layers_to_train != -1:
             base_model = self.set_trainable_layers(base_model, FLAGS.conv_layers_to_train)
 
-        loaded_model = base_model
         classifier = None
-        if FLAGS.classes is not None and FLAGS.classes != []:
-            base_model_output = loaded_model.layers[-1].output
+        if FLAGS.classes is not None and FLAGS.classes != [] and not chexnet_classifier_exists:
+            base_model_output = base_model.layers[-1].output
             output_unrolled_length = self.get_output_unrolled_size(base_model_output.shape)
+
             classifier = get_classifier(output_unrolled_length, FLAGS.multi_label_classification,
                                         FLAGS.classifier_layer_sizes, len(FLAGS.classes))
-            predictions = classifier(base_model_output)
-            loaded_model = Model(inputs=img_input, outputs=predictions)
+
+        loaded_model = self.concat_models(downscaling_model, base_model, classifier, img_input, base_model_img_input)
 
         if FLAGS.show_model_summary:
             loaded_model.summary()
+            if downscaling_model is not None:
+                downscaling_model.summary()
+            base_model.summary()
             if classifier is not None:
                 classifier.summary()
 
         return loaded_model
+
+

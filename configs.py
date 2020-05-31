@@ -11,7 +11,7 @@ class argHandler(dict):
                     'path to testing csv containing the images names and the labels')
         self.define('image_directory', './data/images',
                     'path to folder containing the patient folders which containg the images')
-        self.define('visual_model_name', 'DenseNet121',
+        self.define('visual_model_name', 'MobileNetV2',
                     'select from (VGG16, VGG19, DenseNet121, DenseNet169, DenseNet201, Xception, ResNet50, ResNet101, ResNet152, ResNet50V2, ResNet101V2, ResNet152V2, InceptionV3, InceptionResNetV2, NASNetMobile, NASNetLarge, MobileNet, MobileNetV2, EfficientNetB0 to EfficientNetB7). Note that the classifier layer is removed by default.')
         self.define('use_chexnet_weights', True,
                     'use pre-trained chexnet weights. Note only works with DenseNet121. The classifier layer is removed by default as with other models')
@@ -22,7 +22,7 @@ class argHandler(dict):
         self.define('classes', ['BIRAD-1', 'BIRAD-2', 'BIRAD-3', 'BIRAD-4', 'BIRAD-5'],
                     'the names of the output classes')
 
-        self.define('multi_label_classification', True,
+        self.define('multi_label_classification', False,
                     'determines if this is a multi classification problem or not. It affects the loss function')
 
         self.define('classifier_layer_sizes', [],
@@ -44,7 +44,7 @@ class argHandler(dict):
                     'Learning rate decay factor when validation loss stops decreasing')
         self.define('optimizer_type', 'Adam', 'Choose from (Adam, SGD, RMSprop, Adagrad, Adadelta, Adamax, Nadam)')
         self.define('gpu_percentage', 0.95, 'gpu utilization. If 0 it will use the cpu')
-        self.define('batch_size', 8, 'batch size for training and testing')
+        self.define('batch_size', 2, 'batch size for training and testing')
         self.define('multilabel_threshold', 0.5,
                     'The threshold from which to detect a class. Only used with multi label classification.')
         self.define('generator_workers', 4, 'The number of cpu workers generating batches.')
@@ -57,7 +57,9 @@ class argHandler(dict):
                     'Controls the class_weight ratio between 0 and 1. Higher value means higher weighting of positive samples. Only works if use_class_balancing is set to true')
         self.define('use_class_balancing', True,
                     'If set to true it will automatically balance the classes by settings class weights')
-
+        self.define('cnn_downscaling_factor', 2,
+                    'Controls the cnn layers responsible for downscaling the input image. if input image is 512x512 and downscaling factor is set to 2 then the downscaling cnn will output image with size 128x128. Note it is a learnable net and if set to 0 it will skip it')
+        self.define('cnn_downscaling_filters', 64, 'Number of filters in the downscaling model')
     def define(self, argName, default, description):
         self[argName] = default
         self._descriptions[argName] = description
