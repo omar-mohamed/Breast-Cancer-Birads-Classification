@@ -22,7 +22,7 @@ class argHandler(dict):
         self.define('classes', ['BIRAD-1', 'BIRAD-2', 'BIRAD-3', 'BIRAD-4', 'BIRAD-5'],
                     'the names of the output classes')
 
-        self.define('multi_label_classification', False,
+        self.define('multi_label_classification', True,
                     'determines if this is a multi classification problem or not. It affects the loss function')
 
         self.define('classifier_layer_sizes', [],
@@ -57,7 +57,7 @@ class argHandler(dict):
                     'Controls the class_weight ratio between 0 and 1. Higher value means higher weighting of positive samples. Only works if use_class_balancing is set to true')
         self.define('use_class_balancing', True,
                     'If set to true it will automatically balance the classes by settings class weights')
-        self.define('cnn_downscaling_factor', 2,
+        self.define('cnn_downscaling_factor', 0,
                     'Controls the cnn layers responsible for downscaling the input image. if input image is 512x512 and downscaling factor is set to 2 then the downscaling cnn will output image with size 128x128. Note it is a learnable net and if set to 0 it will skip it')
         self.define('cnn_downscaling_filters', 64, 'Number of filters in the downscaling model')
     def define(self, argName, default, description):
