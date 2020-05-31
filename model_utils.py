@@ -134,7 +134,7 @@ def get_multilabel_evaluation_metrics(pred, labels, class_names, threshold=0.5,i
     print(f"mean auroc: {mean_auroc}")
 
     AP = average_precision_score(labels, pred)
-    exact_accuracy,best_exact_thresh = get_best_exact_match(pred,labels,image_names)
+    exact_accuracy,best_exact_thresh = get_best_exact_match(pred,labels)
     prec, rec, fscore, support = precision_recall_fscore_support(labels, pred >= best_exact_thresh, average='macro')
     if save_path is not None and image_names is not None:
         save_exact_match_results(pred>=best_exact_thresh,labels,image_names,save_path)
