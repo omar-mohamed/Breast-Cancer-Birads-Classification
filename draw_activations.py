@@ -11,15 +11,16 @@ from gradcam import GradCAM
 import cv2
 from tqdm import tqdm
 
-write_path = './cam_output'
+
+FLAGS = argHandler()
+FLAGS.setDefaults()
+
+write_path = os.path.join(FLAGS.save_model_path,'cam_output')
 
 try:
     os.makedirs(write_path)
 except:
     print("path already exists")
-
-FLAGS = argHandler()
-FLAGS.setDefaults()
 
 set_gpu_usage(FLAGS.gpu_percentage)
 
