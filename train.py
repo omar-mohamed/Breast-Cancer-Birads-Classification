@@ -92,8 +92,8 @@ else:
     callbacks.extend([CSVLogger(os.path.join(FLAGS.save_model_path,'training_log.csv')), checkpoint])
 
 
-visual_model.fit_generator(
-    generator=train_generator,
+visual_model.fit(
+    train_generator,
     steps_per_epoch=train_generator.steps,
     epochs=FLAGS.num_epochs,
     validation_data=test_generator,
