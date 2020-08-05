@@ -2,7 +2,9 @@ import pandas as pd
 import os
 import numpy as np
 
-dataset_df = pd.read_csv('./data/all_data.csv')
+dataset_df = pd.read_csv('./data/all_data_3c.csv')
+
+
 
 test_set_fraction=0.2
 
@@ -14,10 +16,10 @@ if shuffle:
 
 def get_sparse_labels(y):
     labels = np.zeros(y.shape[0],dtype=int)
-    class_counts = np.zeros(5,dtype=int)
+    class_counts = np.zeros(3,dtype=int)
     index = 0
     for label in y:
-        label = np.array(str(label[0]).split("$"), dtype=np.int) - 1
+        label = np.array(str(label).split("$"), dtype=np.int) - 1
         labels[index] = int(np.max(label))
         class_counts[labels[index]] += 1
 
@@ -44,7 +46,7 @@ def split_train_test(dataset_df):
 
     train_dict = make_dict(dataset_df)
     test_dict = make_dict(dataset_df)
-    test_count_so_far = np.zeros(5)
+    test_count_so_far = np.zeros(3)
     index=0
     for label in sparse_labels:
         if test_count_so_far[label] < test_fraction_count[label]:
@@ -62,6 +64,6 @@ train_dict,test_dict = split_train_test(dataset_df)
 training_df=pd.DataFrame(train_dict)
 testing_df=pd.DataFrame(test_dict)
 
-training_df.to_csv(os.path.join("./data","training_set.csv"), index=False)
+training_df.to_csv(os.path.join("./data","training_set_3c.csv"), index=False)
 
-testing_df.to_csv(os.path.join("./data","testing_set.csv"), index=False)
+testing_df.to_csv(os.path.join("./data","testing_set_3c.csv"), index=False)
