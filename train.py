@@ -24,10 +24,7 @@ test_generator = get_generator(FLAGS.test_csv, FLAGS)
 
 class_weights = None
 if FLAGS.use_class_balancing:
-    if FLAGS.multi_label_classification:
-        class_weights = get_multilabel_class_weights(train_generator.y, FLAGS.positive_weights_multiply)
-    else:
-        class_weights = get_class_weights(train_generator.get_class_counts(), FLAGS.positive_weights_multiply)
+    class_weights = get_class_weights(train_generator.get_class_counts(), FLAGS.positive_weights_multiply)
 
 
 # load classifier from saved weights or get a new one

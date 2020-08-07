@@ -54,7 +54,7 @@ class MultipleClassAUROC(Callback):
         y_hat shape: (#samples, len(class_names))
         y: [(#samples, 1), (#samples, 1) ... (#samples, 1)]
         """
-        y_hat = self.model.predict_generator(self.sequence, workers=self.workers)
+        y_hat = self.model.predict(self.sequence, workers=self.workers)
         y = self.sequence.get_y_true()
 
 
