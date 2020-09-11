@@ -104,21 +104,20 @@ class AugmentedImageSequence(Sequence):
         index = 0
 
         for label in y:
-            label = np.array(str(label[0]).split("$"), dtype=np.int) - 1
-            labels[index] = int(np.max(label))
-            # if labels[index] == 4:
-            #     labels[index] = 3
+            labels[index] = self.class_names.index(label)
             self.class_counts[labels[index]] += 1
-
             index += 1
+
         return labels
 
     def get_onehot_labels(self, y):
         onehot = np.zeros((y.shape[0], len(self.class_names)))
         index = 0
         for label in y:
-            labels = np.array(str(label[0]).split("$"), dtype=np.int) - 1
-            onehot[index][labels] = 1
+            labels = str(label[0]).split("$")
+            for l in labels:
+                ind = self.class_names.index(l)
+                onehot[index,ind] = 1
             index += 1
         return onehot
 

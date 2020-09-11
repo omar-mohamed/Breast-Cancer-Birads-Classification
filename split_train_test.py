@@ -1,8 +1,12 @@
 import pandas as pd
 import os
 import numpy as np
+from configs import argHandler
 
-dataset_df = pd.read_csv('./data/all_data_3c.csv')
+FLAGS = argHandler()
+FLAGS.setDefaults()
+
+dataset_df = pd.read_csv('./data/all_data_pathology.csv')
 
 
 
@@ -17,11 +21,11 @@ if shuffle:
 def get_sparse_labels(y):
     labels = np.zeros(y.shape[0],dtype=int)
     class_counts = np.zeros(3,dtype=int)
+    mapping = {'Normal': 0, 'Benign': 1, 'Malignant': 2}
     index = 0
     for label in y:
-        label = np.array(str(label).split("$"), dtype=np.int) - 1
-        labels[index] = int(np.max(label))
-        class_counts[labels[index]] += 1
+        labels[index] = mapping[label]
+        class_counts[mapping[label]] += 1
 
         index += 1
     return labels,class_counts
@@ -37,7 +41,7 @@ def add_row(dict,df_row):
         dict[key].append(df_row[key])
 
 def split_train_test(dataset_df):
-    labels= dataset_df['BIRADS']
+    labels= dataset_df[FLAGS.csv_label_columns[0]]
     sparse_labels,class_counts=get_sparse_labels(labels)
 
     test_fraction_count = (class_counts*test_set_fraction).astype(int)
@@ -64,6 +68,6 @@ train_dict,test_dict = split_train_test(dataset_df)
 training_df=pd.DataFrame(train_dict)
 testing_df=pd.DataFrame(test_dict)
 
-training_df.to_csv(os.path.join("./data","training_set_3c.csv"), index=False)
+training_df.to_csv(os.path.join("./data","training_set_pathology.csv"), index=False)
 
-testing_df.to_csv(os.path.join("./data","testing_set_3c.csv"), index=False)
+testing_df.to_csv(os.path.join("./data","testing_set_pathology.csv"), index=False)
