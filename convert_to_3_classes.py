@@ -20,4 +20,4 @@ for _, row in dataset_df.iterrows():
 
 dataset_df['BIRADS'] = new_labels
 
-dataset_df.to_csv('./data/all_data_3c.csv')
+dataset_df.to_csv('./data/all_data_3c.csv',index=False)
