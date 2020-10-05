@@ -200,7 +200,9 @@ class ModelFactory:
 
     def get_model(self, FLAGS):
 
-        if FLAGS.use_imagenet_weights is True:
+        if 'Efficient' in FLAGS.visual_model_name:
+            base_weights = "noisy-student"
+        elif FLAGS.use_imagenet_weights is True:
             base_weights = "imagenet"
         else:
             base_weights = None

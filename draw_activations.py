@@ -45,7 +45,7 @@ for batch_i in tqdm(range(test_generator.steps)):
     original = cv2.imread(image_path)
     preds = visual_model.predict(batch)
     predicted_class = np.argmax(preds[0])
-    label = f"Birad-{predicted_class + 1}"
+    label = FLAGS.classes[predicted_class]
     cam = GradCAM(visual_model, predicted_class)
     heatmap = cam.compute_heatmap(batch)
 
