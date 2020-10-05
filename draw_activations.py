@@ -33,7 +33,7 @@ if FLAGS.load_model_path != '' and FLAGS.load_model_path is not None:
 else:
     visual_model = model_factory.get_model(FLAGS)
 FLAGS.batch_size = 1
-test_generator = get_generator(FLAGS.test_csv,FLAGS)
+test_generator = get_generator(FLAGS.train_csv,FLAGS)
 
 images_names = test_generator.get_images_names()
 
