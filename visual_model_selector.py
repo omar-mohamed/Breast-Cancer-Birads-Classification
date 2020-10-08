@@ -248,11 +248,8 @@ class ModelFactory:
 
         classifier = None
         if FLAGS.classes is not None and FLAGS.classes != [] and not chexnet_classifier_exists:
-            base_model_output = base_model.layers[-1].output
-            output_unrolled_length = self.get_output_unrolled_size(base_model_output.shape)
-
-            classifier = get_classifier(output_unrolled_length, FLAGS.multi_label_classification,
-                                        FLAGS.classifier_layer_sizes, len(FLAGS.classes))
+            classifier = get_classifier(FLAGS.multi_label_classification, FLAGS.classifier_layer_sizes,
+                                        len(FLAGS.classes))
 
         loaded_model = self.concat_models(downscaling_model, base_model, classifier, img_input, base_model_img_input)
 
